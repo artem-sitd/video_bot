@@ -19,7 +19,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 @asynccontextmanager
-async def get_session():
+async def get_async_session():
     async with AsyncSessionLocal() as session:
         yield session
 

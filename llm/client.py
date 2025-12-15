@@ -5,6 +5,8 @@ from prompt import SYSTEM_PROMPT
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
+# отправка промпта + сообщения от пользователя по апи openai
+# и получение готовой правивальной json схемы
 def parse_user_query(text: str) -> str:
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
