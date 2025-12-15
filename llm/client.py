@@ -1,19 +1,41 @@
 from openai import OpenAI
 from config import settings
-from prompt import SYSTEM_PROMPT
+from .prompt import SYSTEM_PROMPT
+import traceback
+import httpx
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+# прокси для openai,
+proxy_url = settings.get_proxy_url
+
+http_client = httpx.Client(
+    proxy=proxy_url,
+    timeout=30.0,
+)
+
+client = OpenAI(
+    api_key=settings.OPENAI_API_KEY,
+    http_client=http_client,
+)
 
 
 # отправка промпта + сообщения от пользователя по апи openai
 # и получение готовой правивальной json схемы
 def parse_user_query(text: str) -> str:
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": text}
-        ],
-        temperature=0,
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": text}
+            ],
+            temperature=0,
+        )
+
+        # для отладки!
+        print("OPENAI RESPONSE:", response)
+        return response.choices[0].message.content
+
+    except Exception as e:
+        print("OPENAI ERROR:", e)
+        traceback.print_exc()
+        raise

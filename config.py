@@ -9,7 +9,7 @@ def get_env_file(local: bool = False) -> Path:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore", env_file=get_env_file(),
                                       env_file_encoding='utf-8')
-
+    # postgres
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
@@ -18,6 +18,16 @@ class Settings(BaseSettings):
 
     BOT_TOKEN: str
     OPENAI_API_KEY: str
+
+    # proxy
+    LOGIN: str
+    PASS: str
+    HOST: str
+    PORT: str
+
+    @property
+    def get_proxy_url(self):
+        return f"socks5://{self.LOGIN}:{self.PASS}@{self.HOST}:{self.PORT}"
 
     @property
     def DATABASE_URL_async(self) -> str:
