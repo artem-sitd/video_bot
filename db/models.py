@@ -1,31 +1,65 @@
-from sqlalchemy import Column, BigInteger, DateTime, ForeignKey
 from db.base import Base
+import uuid
+from datetime import datetime
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Integer, DateTime, ForeignKey
 
 
 class Video(Base):
     __tablename__ = "videos"
 
-    id = Column(BigInteger, primary_key=True)
-    creator_id = Column(BigInteger, nullable=False)
-    video_created_at = Column(DateTime, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
 
-    views_count = Column(BigInteger, nullable=False)
-    likes_count = Column(BigInteger, nullable=False)
-    comments_count = Column(BigInteger, nullable=False)
-    reports_count = Column(BigInteger, nullable=False)
+    creator_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False
+    )
 
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    video_created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+
+    views_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    likes_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    comments_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    reports_count: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
 
 
 class VideoSnapshot(Base):
     __tablename__ = "video_snapshots"
 
-    id = Column(BigInteger, primary_key=True)
-    video_id = Column(BigInteger, ForeignKey("videos.id"))
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
 
-    views_count = Column(BigInteger, nullable=False)
-    delta_views_count = Column(BigInteger, nullable=False)
+    video_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("videos.id"),
+        nullable=False
+    )
 
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime)
+    views_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    likes_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    comments_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    reports_count: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    delta_views_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    delta_likes_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    delta_comments_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    delta_reports_count: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )

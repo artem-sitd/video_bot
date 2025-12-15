@@ -6,6 +6,7 @@ from db.queries import (
     count_videos_with_new_views,
 )
 
+
 def dispatch(parsed_query):
     intent = parsed_query.intent
     filters = parsed_query.filters
