@@ -18,6 +18,14 @@ client = OpenAI(
 )
 
 
+class ApiCounter:
+    def __init__(self):
+        self.count = 0
+
+
+counter = ApiCounter()
+
+
 # отправка промпта + сообщения от пользователя по апи openai
 # и получение готовой правивальной json схемы
 def parse_user_query(text: str) -> str:
@@ -32,7 +40,8 @@ def parse_user_query(text: str) -> str:
         )
 
         # для отладки!
-        print("OPENAI RESPONSE:", response)
+        counter.count += 1
+        print(f"{counter.count}. OPENAI RESPONSE:", response)
         return response.choices[0].message.content
 
     except Exception as e:

@@ -9,6 +9,11 @@ from config import settings
 engine = create_async_engine(
     settings.DATABASE_URL_async,
     echo=False,
+    connect_args={
+        "server_settings": {
+            "timezone": "UTC",
+        }
+    },
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -31,6 +36,11 @@ from sqlalchemy.orm import sessionmaker, Session
 sync_engine = create_engine(
     settings.DATABASE_URL_sync,
     echo=False,
+    connect_args={
+        "server_settings": {
+            "timezone": "UTC",
+        }
+    }
 )
 
 SessionLocal = sessionmaker(

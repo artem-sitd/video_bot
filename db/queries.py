@@ -1,8 +1,9 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, cast, Date
 from sqlalchemy.sql import Select
 from db.models import Video, VideoSnapshot
 from llm.schemas import Filters
 from db.session import get_async_session
+from datetime import timedelta
 
 
 def base_video_stmt(filters: Filters) -> Select:
@@ -12,10 +13,12 @@ def base_video_stmt(filters: Filters) -> Select:
         stmt = stmt.where(Video.creator_id == filters.creator_id)
 
     if filters.date_from:
-        stmt = stmt.where(Video.video_created_at >= filters.date_from)
+        stmt = stmt.where(
+            cast(Video.video_created_at, Date) >= filters.date_from)
 
     if filters.date_to:
-        stmt = stmt.where(Video.video_created_at <= filters.date_to)
+        stmt = stmt.where(
+            cast(Video.video_created_at, Date) <= filters.date_to)
 
     return stmt
 
@@ -30,10 +33,10 @@ def base_snapshot_stmt(filters: Filters) -> Select:
         ).where(Video.creator_id == filters.creator_id)
 
     if filters.date_from:
-        stmt = stmt.where(VideoSnapshot.created_at >= filters.date_from)
+        stmt = stmt.where(cast(VideoSnapshot.created_at, Date) >= filters.date_from)
 
     if filters.date_to:
-        stmt = stmt.where(VideoSnapshot.created_at <= filters.date_to)
+        stmt = stmt.where(cast(VideoSnapshot.created_at, Date) <= filters.date_to)
 
     return stmt
 
@@ -42,8 +45,7 @@ def base_snapshot_stmt(filters: Filters) -> Select:
 async def count_videos(filters: Filters) -> int:
     async with get_async_session() as session:
         stmt = select(func.count()).select_from(
-            base_video_stmt(filters).subquery()
-        )
+            base_video_stmt(filters).subquery())
 
         result = await session.execute(stmt)
         return result.scalar() or 0
@@ -53,11 +55,9 @@ async def count_videos(filters: Filters) -> int:
 async def count_videos_with_views_gt(filters: Filters) -> int:
     async with get_async_session() as session:
         base_stmt = base_video_stmt(filters).where(
-            Video.views_count > filters.views_gt
-        )
+            Video.views_count > filters.views_gt)
 
         stmt = select(func.count()).select_from(base_stmt.subquery())
-
         result = await session.execute(stmt)
         return result.scalar() or 0
 
@@ -88,3 +88,4 @@ async def count_videos_with_new_views(filters: Filters) -> int:
 
         result = await session.execute(stmt)
         return result.scalar() or 0
+
