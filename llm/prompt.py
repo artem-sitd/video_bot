@@ -14,10 +14,10 @@ SYSTEM_PROMPT = """
 Допустимые intent:
 
 1. count_videos
-— подсчёт количества видео (с фильтрами или без)
+— подсчёт количества опубликованных видео
 
 2. sum_views_delta
-— суммарный прирост просмотров за период
+— суммарное изменение количества просмотров за период
 
 3. count_videos_with_views_gt
 — количество видео, у которых итоговое число просмотров больше указанного значения
@@ -25,67 +25,48 @@ SYSTEM_PROMPT = """
 4. count_videos_with_new_views
 — количество уникальных видео, у которых был прирост просмотров за период
 
+5. count_snapshots
+— подсчёт замеров статистики (snapshots)
+
+Правила интерпретации:
+
+- Если вопрос касается опубликованных видео — используй intent "count_videos"
+- Если вопрос касается замеров статистики — используй intent "count_snapshots"
+- Если говорится, что просмотры увеличились — views_delta = "positive"
+- Если говорится, что просмотры уменьшились или стали меньше по сравнению с предыдущим замером —
+  views_delta = "negative"
+- Если сравнение с предыдущим замером явно не указано — views_delta = null
+
 Формат ответа:
 
 {
-  "intent": "<one of: count_videos, sum_views_delta, count_videos_with_views_gt, count_videos_with_new_views>",
+  "intent": "<one of: count_videos, sum_views_delta, count_videos_with_views_gt, count_videos_with_new_views, count_snapshots>",
   "filters": {
     "creator_id": string or null,
     "date_from": "YYYY-MM-DD" or null,
     "date_to": "YYYY-MM-DD" or null,
-    "views_gt": int or null
+    "views_gt": int or null,
+    "views_delta": "positive" | "negative" | null
   }
 }
 
 Если указана одна дата — date_from и date_to равны.
+Если в вопросе указан временной интервал (например, с 10:00 до 15:00),
+заполни filters.time_from и filters.time_to в формате HH:MM.
+Если вопрос не предполагает фильтров — все поля filters должны быть null.
 
 Примеры:
 
-Ввод: "Сколько всего видео есть в системе?"
+Ввод: "Сколько всего есть замеров статистики, в которых число просмотров за час оказалось отрицательным?"
 Выход:
 {
-  "intent": "count_videos",
+  "intent": "count_snapshots",
   "filters": {
     "creator_id": null,
     "date_from": null,
     "date_to": null,
-    "views_gt": null
-  }
-}
-
-Ввод: "Сколько видео у креатора с id 123 вышло с 1 ноября 2025 по 5 ноября 2025?"
-Выход:
-{
-  "intent": "count_videos",
-  "filters": {
-    "creator_id": "123",
-    "date_from": "2025-11-01",
-    "date_to": "2025-11-05",
-    "views_gt": null
-  }
-}
-
-Ввод: "Сколько видео набрало больше 100000 просмотров за всё время?"
-Выход:
-{
-  "intent": "count_videos_with_views_gt",
-  "filters": {
-    "creator_id": null,
-    "date_from": null,
-    "date_to": null,
-    "views_gt": 100000
-  }
-}
-
-Ввод: "На сколько просмотров в сумме выросли все видео 28 ноября 2025?"
-Выход:
-{
-  "intent": "sum_views_delta",
-  "filters": {
-    "creator_id": null,
-    "date_from": "2025-11-28",
-    "date_to": "2025-11-28",
-    "views_gt": null
+    "views_gt": null,
+    "views_delta": "negative"
   }
 }
 
@@ -97,7 +78,8 @@ SYSTEM_PROMPT = """
     "creator_id": null,
     "date_from": "2025-11-27",
     "date_to": "2025-11-27",
-    "views_gt": null
+    "views_gt": null,
+    "views_delta": null
   }
 }
 """

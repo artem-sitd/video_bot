@@ -13,7 +13,8 @@ async def handle_message(message: types.Message):
         llm_response = await loop.run_in_executor(
             None, parse_user_query, user_text)
         parsed = ParsedQuery.model_validate_json(llm_response)
-    except Exception:
+    except Exception as e:
+        print(e)
         await message.answer("Не смог понять запрос")
         return
 
