@@ -41,7 +41,7 @@ def parse_user_query(text: str) -> str:
 
         # для отладки!
         counter.count += 1
-        print(f"{counter.count}. OPENAI RESPONSE:", response)
+        print(f"{counter.count}. OPENAI RESPONSE:", response.choices[0].message.content)
         return response.choices[0].message.content
 
     except Exception as e:
