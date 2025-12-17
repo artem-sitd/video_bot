@@ -1,3 +1,4 @@
+## Ридми будет доделан 17.12.2025 к вечеру
 ```
 git clone https://github.com/artem-sitd/video_bot.git
 cd video_bot
